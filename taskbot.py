@@ -43,9 +43,13 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if message.content.startswith('!task'):
-        print(message.author)
+        print(message.content)
         discordMessage = message.content
-        discordCommand = discordMessage.split(' ')[1]
+        try:
+            discordCommand = discordMessage.split(' ')[1]
+        except:
+            await client.send_message(message.channel, 'List of commands:\n * !task create - creates a new task on Trello\n * !task register - registers a username\n * !task assigned - get all tasks you are assigned to')
+            return;
         print(discordCommand)
         if discordCommand == 'create':
             msg = await client.send_message(message.channel, 'Which Category?\nOptions are: Milestones, To Do, Progress, Done, Backlog, or Resources')
@@ -77,9 +81,37 @@ async def on_message(message):
                 await client.send_message(message.channel, 'You have already registered')
                 
         if discordCommand == 'assigned':
+            msg = await client.send_message(message.channel, 'Please wait...')
             tw.refresh()
-            print(tw.categoryData, userIDList[str(message.author)])
+            #print(tw.categoryData, userIDList[str(message.author)])
             assignList = tw.getAssigned(tw.categoryData,tw.getMemberID(userIDList[str(message.author)]))
             print(assignList)
+            totalString = ""
+            for i in assignList:
+                #print(i, assignList[i])
+                totalString += '\n=='+ i + '==\n'
+                count = 0
+                for j in assignList[i]:
+                    count += 1
+                    totalString += "----------------------------------------\n"
+                    totalString += "Name: " + j['name'] + "\nDescription: " + j['description']
+                    totalString += "\n----------------------------------------\n"
+            print(totalString)
+            await client.delete_message(msg)
+            await client.send_message(message.channel, totalString)
+
+        if discordCommand == 'give':
+            try:
+                discordUsername = discordMessage.split(' ')[2]
+                discordTrigger = discordMessage.split(' ')[3]
+            except:
+                await client.send_message(message.channel, '!task give takes 2 additional arguments\n\n * Syntax: `!task give user taskName`\n * Example: `!task give @Milord recent`')
+                return;
+            print('proceed')
+            
             
 client.run('MzI1MTU2NDc5MDY3NzUwNDAy.DOJfDQ.2R61oGy-RMB8_iNOwMcCdyLEMsE')
+
+
+
+

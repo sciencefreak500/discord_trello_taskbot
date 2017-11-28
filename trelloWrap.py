@@ -65,11 +65,14 @@ def getCardinCategory(array,idOrName):
 
 
 def getAssigned(array,member):
-    result = []
+    result = {}
     for i in array:
+        content = []
         for j in array[i]:
             if member in j['members']:
-                result.append(j)
+                content.append(j)
+        if len(content) > 0:
+            result[i] = content
     return result
 
 def getMemberID(username):
@@ -79,7 +82,9 @@ def getMemberID(username):
 def makeCard(listid,name,description = ""):
     cat = ""
     for i in categories:
-        if listid in i:
+        #print(i)
+        if listid.lower() in i.lower():
+            #print(listid, i)
             cat = categories[i]
             break
     return trello.lists.new_card(cat,name,description)
@@ -111,6 +116,7 @@ def moveCard(cardID,listname):
     return trello.cards.update_idList(cardID,catID)
 
 def refresh():
+    global eoko, labels, categories, categoryData
     eoko = trello.boards.get('59adc21b52e8b12473b6ad26')
     labels = getLabels(eoko)
     categories = getCategories(eoko['id'])
